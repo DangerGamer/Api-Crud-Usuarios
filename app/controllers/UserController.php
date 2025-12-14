@@ -5,15 +5,21 @@ use App\models\User;
 
 class UserController {
 
+    private User $model;
+
+    public function __construct() {
+        $this->model = new User();
+    }
+
     public function index(): void {
         $model = new User();
         $users = $model->getAll();
         echo json_encode(['success' => true, 'data' => $users, 'message' => '', 'error' => 'exito']);
     }
 
-    public function show($id): void {
+    public function filter($filter): void {
         $model = new User();
-        $user = $model->getById((int)$id);
+        $user = $model->getByFilter($filter);
 
         if (!$user) {
             http_response_code(404);
@@ -24,27 +30,51 @@ class UserController {
         echo json_encode(['success' => true, 'data' => $user]);
     }
 
-    public function store(): void {
-        $body = json_decode(file_get_contents('php://input'), true);
+    public function userById($id): void {
+        $model = new User();
+        $user = $model->userById($id);
 
-        if (empty($body['name']) || empty($body['email'])) {
-            http_response_code(400);
-            echo json_encode(['error' => 'Campos requeridos: name, email']);
+        if (!$user) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Usuario no encontrado']);
             return;
         }
 
-        $model = new User();
-        $ok = $model->create($body);
-
-        echo json_encode([
-            'success' => $ok,
-            'message' => $ok ? 'Usuario creado correctamente' : 'Error al crear usuario'
-        ]);
+        echo json_encode(['success' => true, 'data' => $user]);
     }
 
-    public function destroy($id): void {
+
+    public function updateUser(array $data): array {
+        if (!isset($data['usu_id'])) {
+            return ["success" => false, "error" => "ID requerido"];
+        }
+
+        return [
+            "success" => $this->model->updateUser($data)
+        ];
+    }
+
+    public function createUser(array $data): array {
+        if (
+            !isset($data['usu_id']) ||
+            !isset($data['usu_nombre']) ||
+            !isset($data['usu_papellido']) ||
+            !isset($data['usu_direccion']) ||
+            !isset($data['usu_telefono']) ||
+            !isset($data['usu_correo']) ||
+            !isset($data['usu_genero']) 
+        ) {
+            return ["success" => false, "error" => "Campos incompletos"];
+        }
+
+        return [
+            "success" => $this->model->createUser($data)
+        ];
+    }
+
+    public function deteleUser($id): void {
         $model = new User();
-        $ok = $model->delete((int)$id);
+        $ok = $model->deteleUser((int)$id);
         echo json_encode([
             'success' => $ok,
             'message' => $ok ? 'Usuario eliminado' : 'Error al eliminar usuario'
