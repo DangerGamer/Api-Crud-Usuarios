@@ -72,12 +72,14 @@ class UserController {
         ];
     }
 
-    public function deteleUser($id): void {
-        $model = new User();
-        $ok = $model->deteleUser((int)$id);
+    public function deleteUsers(array $ids): void {
+        $ok = $this->model->deleteUsers($ids);
+
         echo json_encode([
             'success' => $ok,
-            'message' => $ok ? 'Usuario eliminado' : 'Error al eliminar usuario'
+            'message' => $ok ? 'Usuarios eliminados' : 'Error al eliminar'
         ]);
     }
+
+
 }

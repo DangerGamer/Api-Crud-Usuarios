@@ -63,13 +63,15 @@ $router->add('POST', '/users/create', function() use ($userController){
 });
 
 $router->add('DELETE', '/users/delete', function() use ($userController) {
-    $id = $_GET['id'] ?? null;
-    if (!$id) {
+    $data = json_decode(file_get_contents("php://input"), true);
+
+    if (!isset($data['usuarios']) || !is_array($data['usuarios'])) {
         http_response_code(400);
-        echo json_encode(['error' => 'Parámetro id requerido']);
+        echo json_encode(['success' => false, 'error' => 'Lista de usuarios requerida']);
         return;
     }
-    $userController->deteleUser((int)$id);
+
+    $userController->deleteUsers($data['usuarios']);
 });
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

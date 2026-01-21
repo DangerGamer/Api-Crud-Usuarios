@@ -43,7 +43,8 @@ class User {
                 usu_direccion  = :direccion,
                 usu_telefono   = :telefono,
                 usu_correo     = :correo,
-                usu_genero     = :genero
+                usu_genero     = :genero,
+                usu_icono      = :usu_icono
             WHERE usu_id = :id
         ");
 
@@ -55,12 +56,13 @@ class User {
             ':telefono'   => $data['usu_telefono'],
             ':correo'     => $data['usu_correo'],
             ':genero'     => $data['usu_genero'],
+            ':usu_icono'  => $data['usu_icono'],
             ':id'         => $data['usu_id']
         ]);
     }
 
     public function createUser(array $data): bool {
-        $stmt = $this->db->prepare("INSERT INTO usuario (usu_id, usu_nombre, usu_papellido, usu_sapellido, usu_direccion, usu_telefono, usu_correo, usu_genero) VALUES (NULL, :usu_nombre, :usu_papellido, :usu_sapellido, :usu_direccion, :usu_telefono, :usu_correo, :usu_genero)");
+        $stmt = $this->db->prepare("INSERT INTO usuario (usu_id, usu_nombre, usu_papellido, usu_sapellido, usu_direccion, usu_telefono, usu_correo, usu_genero, usu_icono) VALUES (NULL, :usu_nombre, :usu_papellido, :usu_sapellido, :usu_direccion, :usu_telefono, :usu_correo, :usu_genero, :usu_icono)");
         return $stmt->execute([
             ':usu_nombre' => $data['usu_nombre'],
             ':usu_papellido' => $data['usu_papellido'],
@@ -68,7 +70,8 @@ class User {
             ':usu_direccion' => $data['usu_direccion'],
             ':usu_telefono' => $data['usu_telefono'],
             ':usu_correo' => $data['usu_correo'],
-            ':usu_genero' => $data['usu_genero']
+            ':usu_genero' => $data['usu_genero'],
+            ':usu_icono' => $data['usu_icono']
         ]);
     }
 
@@ -76,4 +79,16 @@ class User {
         $stmt = $this->db->prepare("DELETE FROM usuario WHERE usu_id = :id");
         return $stmt->execute([':id' => $id]);
     }
+
+    public function deleteUsers(array $ids): bool {
+        if (empty($ids)) return false;
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $sql = "DELETE FROM usuario WHERE usu_id IN ($placeholders)";
+        $stmt = $this->db->prepare($sql);
+
+        return $stmt->execute($ids);
+    }
+
+
 }
